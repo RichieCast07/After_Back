@@ -9,10 +9,8 @@ export function registerPhasesRoutes(app: Application, phaseController: PhaseCon
 
     phaseRouter.use(authMiddleware);
 
-    // Lectura: cualquier rol autenticado (RP la necesita para vender boletos)
     phaseRouter.get("/:eventId/phases", (req, res) => phaseController.getPhasesByEventId(req, res));
 
-    // Escritura: solo admin
     phaseRouter.use(requireRole(Roles.ADMIN));
     phaseRouter.post("/:eventId/phases", (req, res) => phaseController.createPhase(req, res));
     phaseRouter.put("/:eventId/phases/:phaseId", (req, res) => phaseController.updatePhase(req, res));

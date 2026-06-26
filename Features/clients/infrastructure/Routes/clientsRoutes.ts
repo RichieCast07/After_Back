@@ -8,7 +8,6 @@ export function createClientsRoutes(clientController: ClientController): Router 
 
     router.use(authMiddleware);
 
-    // Cualquier rol autenticado: el RP busca/crea clientes al vender boletos
     router.get("/search", (req, res) => clientController.searchClientByPhone(req, res));
     router.get("/search/:telefono", (req, res) => clientController.searchClientByPhone(req, res));
     router.get("/search-phone", (req, res) => clientController.searchClientByPhone(req, res));
@@ -16,7 +15,6 @@ export function createClientsRoutes(clientController: ClientController): Router 
     router.post("/", (req, res) => clientController.createClient(req, res));
     router.get("/:id", (req, res) => clientController.getClientById(req, res));
 
-    // Solo admin: portafolio completo de clientes (PII) y su exportación/borrado
     router.use(requireRole(Roles.ADMIN));
     router.get("/", (req, res) => clientController.getClients(req, res));
     router.get("/export/csv", (req, res) => clientController.downloadClientsCsv(req, res));

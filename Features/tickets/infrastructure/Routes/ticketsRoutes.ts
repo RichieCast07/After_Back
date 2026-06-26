@@ -6,7 +6,6 @@ import type { TicketController } from "../ticketController.js";
 export function createTicketsRoutes(ticketController: TicketController): Router {
     const router = Router();
 
-    // Público a propósito: link de boleto compartible, sin datos de sesión
     router.get("/public/:token", (req, res) => ticketController.getPublicTicketByToken(req, res));
 
     router.use(authMiddleware);
@@ -18,7 +17,6 @@ export function createTicketsRoutes(ticketController: TicketController): Router 
     router.get("/:codigo", (req, res) => ticketController.getTicketByCode(req, res));
     router.patch("/:codigo/use", (req, res) => ticketController.markTicketAsUsed(req, res));
 
-    // Solo admin: borrar boletos
     router.delete("/:codigo", requireRole(Roles.ADMIN), (req, res) => ticketController.deleteTicketByCode(req, res));
 
     return router;

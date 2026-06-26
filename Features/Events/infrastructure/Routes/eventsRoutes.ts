@@ -8,11 +8,9 @@ export function createEventsRoutes(eventController: EventController): Router {
 
     router.use(authMiddleware);
 
-    // Lectura: cualquier rol autenticado (RP la necesita para vender boletos)
     router.get("/", (req, res) => eventController.getEvents(req, res));
     router.get("/:id", (req, res) => eventController.getEventById(req, res));
 
-    // Escritura: solo admin
     router.use(requireRole(Roles.ADMIN));
     router.post("/", (req, res) => eventController.createEvent(req, res));
     router.delete("/:id", (req, res) => eventController.deleteEvent(req, res));
