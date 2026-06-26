@@ -38,14 +38,42 @@ export class MySQL extends UserRepository {
         }
     }
 
-    async putUsers(id: number, userData: User): Promise<any> {
-        const query = 'UPDATE `usuarios` SET password_hash = ?, username = ?, nombre_completo = ?, telefono = ?, comision_porcentaje = ?, activo = ? WHERE id = ?';
+    async putUsers(id: number, userData: User & { password?: string }): Promise<any> {
+        const fields: string[] = [];
+        const values: any[] = [];
+
+        if (userData.username !== undefined) {
+            fields.push('username = ?');
+            values.push(userData.username);
+        }
+        if (userData.password !== undefined) {
+            fields.push('password_hash = ?');
+            values.push(await bcrypt.hash(userData.password, 10));
+        }
+        if (userData.nombre_completo !== undefined) {
+            fields.push('nombre_completo = ?');
+            values.push(userData.nombre_completo);
+        }
+        if (userData.telefono !== undefined) {
+            fields.push('telefono = ?');
+            values.push(userData.telefono);
+        }
+        if (userData.comision_porcentaje !== undefined) {
+            fields.push('comision_porcentaje = ?');
+            values.push(Number(userData.comision_porcentaje));
+        }
+        if (userData.activo !== undefined) {
+            fields.push('activo = ?');
+            values.push(userData.activo);
+        }
+
+        if (fields.length === 0) {
+            throw new Error('No fields provided to update');
+        }
+
+        const query = `UPDATE \`usuarios\` SET ${fields.join(', ')} WHERE id = ?`;
         try {
-            let passwordToSave = userData.password_hash;
-            if (passwordToSave !== undefined && passwordToSave !== null) {
-                passwordToSave = await bcrypt.hash(passwordToSave, 10);
-            }
-            const rows = await db.fetchRows(query, [passwordToSave, userData.username, userData.nombre_completo, userData.telefono, Number(userData.comision_porcentaje ?? 10), userData.activo, id]);
+            const rows = await db.fetchRows(query, [...values, id]);
             return rows;
         } catch (err) {
             if (err instanceof Error) {
