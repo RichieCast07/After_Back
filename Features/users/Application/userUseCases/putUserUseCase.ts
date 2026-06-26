@@ -14,10 +14,10 @@ export class PutUsersUseCase {
     }
 
     async execute(id: number, userData: Partial<User>): Promise<any> {
-        if (!userData || typeof userData.username !== 'string' || userData.username.trim() === '') {
-            throw HttpErrors.badRequest('username is required and must be a non-empty string');
+        if (!userData || Object.keys(userData).length === 0) {
+            throw HttpErrors.badRequest('At least one field is required to update the user');
         }
-        
+
         return this.usersRepository.putUsers(id, userData as User);
     }
 }

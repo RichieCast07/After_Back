@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import type { ResultSetHeader, RowDataPacket } from 'mysql2';
 import db from '../../../../Core/db.js';
+import { HttpErrors } from '../../../../Core/dberrors.js';
 import type { User } from "../../Domain/Data/user.js";
 import { UserRepository } from "../../Domain/Repository/userRepository.js";
 
@@ -88,7 +89,10 @@ export class MySQL extends UserRepository {
         try {
             const rows = await db.fetchRows(query, [id]);
             return rows;
-        } catch (err) {
+        } catch (err: any) {
+            if (err?.code === 'ER_ROW_IS_REFERENCED_2' || err?.errno === 1451) {
+                throw HttpErrors.conflict('No se puede eliminar: este usuario tiene boletos vendidos asociados. Desactívalo en su lugar.');
+            }
             if (err instanceof Error) {
                 throw new Error('Error deleting user: ' + err.message);
             }
