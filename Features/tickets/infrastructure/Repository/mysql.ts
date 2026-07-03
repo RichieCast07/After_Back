@@ -3,14 +3,23 @@ import type { CreateTicketDTO } from "../../Domain/Data/createTicketDTO.js";
 import type { Ticket } from "../../Domain/Data/ticket.js";
 import { TicketRepository } from "../../Domain/Repository/ticketRepository.js";
 
+function mexicoNow(): string {
+    return new Intl.DateTimeFormat("sv-SE", {
+        timeZone: "America/Mexico_City",
+        year: "numeric", month: "2-digit", day: "2-digit",
+        hour: "2-digit", minute: "2-digit", second: "2-digit",
+        hour12: false,
+    }).format(new Date()).replace("T", " ");
+}
+
 export class MySQLTicketRepository extends TicketRepository {
     async createTicket(ticket: CreateTicketDTO): Promise<Ticket> {
         const connection = await db.pool.getConnection();
         try {
             const [result] = await connection.query(
-                `INSERT INTO boletos 
-                (codigo, cliente_id, rp_id, evento_id, fase_id, tipo_boleto, precio, comision_rp, qr_payload) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                `INSERT INTO boletos
+                (codigo, cliente_id, rp_id, evento_id, fase_id, tipo_boleto, precio, comision_rp, qr_payload, fecha_venta)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [
                     ticket.codigo,
                     ticket.cliente_id,
@@ -20,7 +29,8 @@ export class MySQLTicketRepository extends TicketRepository {
                     ticket.tipo_boleto ?? "GENERAL",
                     ticket.precio,
                     ticket.comision_rp,
-                    ticket.qr_payload ?? null
+                    ticket.qr_payload ?? null,
+                    mexicoNow(),
                 ]
             );
             const insertId = (result as any).insertId;
