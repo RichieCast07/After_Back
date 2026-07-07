@@ -97,10 +97,15 @@ export class MySQLPhaseRepository extends PhaseRepository {
             const existing = await this.getPhaseById(phaseId);
             if (!existing) throw new Error("Phase not found");
 
-            await connection.query(
-                "UPDATE fases SET activa = NOT activa WHERE id = ?",
-                [phaseId]
-            );
+            if (!existing.activa) {
+                await connection.query(
+                    "UPDATE fases SET activa = 0 WHERE evento_id = ? AND id != ?",
+                    [existing.evento_id, phaseId]
+                );
+                await connection.query("UPDATE fases SET activa = 1 WHERE id = ?", [phaseId]);
+            } else {
+                await connection.query("UPDATE fases SET activa = 0 WHERE id = ?", [phaseId]);
+            }
 
             const updated = await this.getPhaseById(phaseId);
             if (!updated) throw new Error("Failed to retrieve updated phase");

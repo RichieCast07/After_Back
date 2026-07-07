@@ -97,6 +97,10 @@ export class SellTicketUseCase {
             return second.id - first.id;
         };
 
+        const explicitlyActivePhase = phases
+            .filter((phase) => Boolean(phase.activa))
+            .sort(byMostRecentStart)[0];
+
         const phaseInCurrentDateRange = phases
             .filter((phase) => {
                 const startsAt = new Date(phase.fecha_inicio);
@@ -105,13 +109,9 @@ export class SellTicketUseCase {
             })
             .sort(byMostRecentStart);
 
-        const activePhaseInRange = phaseInCurrentDateRange.find((phase) => Boolean(phase.activa));
-        const latestActivePhase = phases
-            .filter((phase) => Boolean(phase.activa))
-            .sort(byMostRecentStart)[0];
         const latestPhase = [...phases].sort(byMostRecentStart)[0];
 
-        let selectedPhase = activePhaseInRange ?? phaseInCurrentDateRange[0] ?? latestActivePhase ?? latestPhase;
+        let selectedPhase = explicitlyActivePhase ?? phaseInCurrentDateRange[0] ?? latestPhase;
 
         const fallbackPrice = Number(event.precio_inicial) > 0
             ? Number(event.precio_inicial)
