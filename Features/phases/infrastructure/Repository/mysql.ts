@@ -51,6 +51,9 @@ export class MySQLPhaseRepository extends PhaseRepository {
     async updatePhase(phaseId: number, phase: UpdatePhaseDTO): Promise<Phase> {
         const connection = await db.pool.getConnection();
         try {
+            const existing = await this.getPhaseById(phaseId);
+            if (!existing) throw new Error("Phase not found");
+
             const updates: string[] = [];
             const values: any[] = [];
 
@@ -72,8 +75,6 @@ export class MySQLPhaseRepository extends PhaseRepository {
             }
 
             if (updates.length === 0) {
-                const existing = await this.getPhaseById(phaseId);
-                if (!existing) throw new Error("Phase not found");
                 return existing;
             }
 
@@ -82,6 +83,13 @@ export class MySQLPhaseRepository extends PhaseRepository {
                 `UPDATE fases SET ${updates.join(", ")} WHERE id = ?`,
                 values
             );
+
+            if (phase.precio !== undefined && Number(phase.precio) !== Number(existing.precio)) {
+                await connection.query(
+                    `UPDATE phase_ticket_type_prices SET precio = ? WHERE fase_id = ? AND precio = ?`,
+                    [phase.precio, phaseId, Number(existing.precio)]
+                );
+            }
 
             const updated = await this.getPhaseById(phaseId);
             if (!updated) throw new Error("Failed to retrieve updated phase");
