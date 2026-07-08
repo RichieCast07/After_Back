@@ -102,24 +102,27 @@ export class MetricsService {
     async syncAllTicketPrices(eventoId?: number): Promise<{ updated: number }> {
         const connection = await db.pool.getConnection();
         try {
-            const innerFilter = eventoId ? "AND b2.evento_id = ?" : "";
+            const innerFilter = eventoId ? "WHERE b2.evento_id = ?" : "";
             const outerFilter = eventoId ? "WHERE b.evento_id = ?" : "";
             const params = eventoId ? [eventoId, eventoId] : [];
             const [result] = await connection.query(`
                 UPDATE boletos b
                 INNER JOIN (
                     SELECT b2.id AS ticket_id,
-                           (
-                               SELECT f.id
-                               FROM fases f
-                               WHERE f.evento_id = b2.evento_id
-                                 AND b2.fecha_venta >= f.fecha_inicio
-                                 AND b2.fecha_venta <= f.fecha_fin
-                               ORDER BY f.fecha_inicio DESC, f.id DESC
-                               LIMIT 1
+                           COALESCE(
+                               CASE WHEN b2.fecha_venta IS NOT NULL THEN (
+                                   SELECT f.id
+                                   FROM fases f
+                                   WHERE f.evento_id = b2.evento_id
+                                     AND b2.fecha_venta >= f.fecha_inicio
+                                     AND b2.fecha_venta <= f.fecha_fin
+                                   ORDER BY f.fecha_inicio DESC, f.id DESC
+                                   LIMIT 1
+                               ) END,
+                               b2.fase_id
                            ) AS correct_fase_id
                     FROM boletos b2
-                    WHERE b2.fecha_venta IS NOT NULL ${innerFilter}
+                    ${innerFilter}
                 ) AS fase_lookup
                     ON fase_lookup.ticket_id = b.id AND fase_lookup.correct_fase_id IS NOT NULL
                 INNER JOIN fases f ON f.id = fase_lookup.correct_fase_id
