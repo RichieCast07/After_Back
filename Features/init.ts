@@ -74,6 +74,7 @@ import { GetEventPhaseMetricsHandler } from "../Features/metrics/infrastructure/
 import { GetEventRpMetricsHandler } from "../Features/metrics/infrastructure/handlers/getEventRpMetricsHandler.js";
 import { GetOverallMetricsHandler } from "../Features/metrics/infrastructure/handlers/getOverallMetricsHandler.js";
 import { GetRpMetricsHandler } from "../Features/metrics/infrastructure/handlers/getRpMetricsHandler.js";
+import { SyncTicketPricesHandler } from "../Features/metrics/infrastructure/handlers/syncTicketPricesHandler.js";
 import { MetricsController } from "../Features/metrics/infrastructure/metricsController.js";
 import { createMetricsRoutes } from "../Features/metrics/infrastructure/Routes/metricsRoutes.js";
 import { MySQLTicketTypeRepository } from "../Features/ticketTypes/infrastructure/Repository/mysql.js";
@@ -185,13 +186,15 @@ export function initFeatures(app: Application): void {
     const getEventMetricsHandler = new GetEventMetricsHandler(metricsService);
     const getEventPhaseMetricsHandler = new GetEventPhaseMetricsHandler(metricsService);
     const getEventRpMetricsHandler = new GetEventRpMetricsHandler(metricsService);
+    const syncTicketPricesHandler = new SyncTicketPricesHandler(metricsService);
 
     const metricsController = new MetricsController(
         getOverallMetricsHandler,
         getRpMetricsHandler,
         getEventMetricsHandler,
         getEventPhaseMetricsHandler,
-        getEventRpMetricsHandler
+        getEventRpMetricsHandler,
+        syncTicketPricesHandler
     );
 
     const ticketTypesController = new TicketTypesController(ticketTypeRepository);

@@ -99,6 +99,35 @@ export class MetricsService {
         }
     }
 
+    async syncAllTicketPrices(eventoId?: number): Promise<{ updated: number }> {
+        const connection = await db.pool.getConnection();
+        try {
+            const whereClause = eventoId ? "WHERE b.evento_id = ?" : "";
+            const params = eventoId ? [eventoId] : [];
+            const [result] = await connection.query(`
+                UPDATE boletos b
+                INNER JOIN fases f ON f.id = b.fase_id
+                INNER JOIN usuarios u ON u.id = b.rp_id
+                LEFT JOIN phase_ticket_type_prices ptp
+                    ON ptp.fase_id = b.fase_id
+                    AND ptp.ticket_type_id = (
+                        SELECT tt.id FROM ticket_types tt
+                        WHERE tt.evento_id = b.evento_id
+                          AND tt.nombre = b.tipo_boleto
+                          AND tt.activo = 1
+                        LIMIT 1
+                    )
+                SET
+                    b.precio = COALESCE(ptp.precio, f.precio),
+                    b.comision_rp = ROUND(COALESCE(ptp.precio, f.precio) * (u.comision_porcentaje / 100), 2)
+                ${whereClause}
+            `, params);
+            return { updated: (result as any).affectedRows ?? 0 };
+        } finally {
+            connection.release();
+        }
+    }
+
     async getEventRpMetrics(eventId: number): Promise<EventRpMetrics[]> {
         const connection = await db.pool.getConnection();
         try {
