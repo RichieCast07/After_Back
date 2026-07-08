@@ -102,14 +102,30 @@ export class MetricsService {
     async syncAllTicketPrices(eventoId?: number): Promise<{ updated: number }> {
         const connection = await db.pool.getConnection();
         try {
-            const whereClause = eventoId ? "WHERE b.evento_id = ?" : "";
-            const params = eventoId ? [eventoId] : [];
+            const innerFilter = eventoId ? "AND b2.evento_id = ?" : "";
+            const outerFilter = eventoId ? "WHERE b.evento_id = ?" : "";
+            const params = eventoId ? [eventoId, eventoId] : [];
             const [result] = await connection.query(`
                 UPDATE boletos b
-                INNER JOIN fases f ON f.id = b.fase_id
+                INNER JOIN (
+                    SELECT b2.id AS ticket_id,
+                           (
+                               SELECT f.id
+                               FROM fases f
+                               WHERE f.evento_id = b2.evento_id
+                                 AND b2.fecha_venta >= f.fecha_inicio
+                                 AND b2.fecha_venta <= f.fecha_fin
+                               ORDER BY f.fecha_inicio DESC, f.id DESC
+                               LIMIT 1
+                           ) AS correct_fase_id
+                    FROM boletos b2
+                    WHERE b2.fecha_venta IS NOT NULL ${innerFilter}
+                ) AS fase_lookup
+                    ON fase_lookup.ticket_id = b.id AND fase_lookup.correct_fase_id IS NOT NULL
+                INNER JOIN fases f ON f.id = fase_lookup.correct_fase_id
                 INNER JOIN usuarios u ON u.id = b.rp_id
                 LEFT JOIN phase_ticket_type_prices ptp
-                    ON ptp.fase_id = b.fase_id
+                    ON ptp.fase_id = f.id
                     AND ptp.ticket_type_id = (
                         SELECT tt.id FROM ticket_types tt
                         WHERE tt.evento_id = b.evento_id
@@ -118,9 +134,10 @@ export class MetricsService {
                         LIMIT 1
                     )
                 SET
+                    b.fase_id = f.id,
                     b.precio = COALESCE(ptp.precio, f.precio),
                     b.comision_rp = ROUND(COALESCE(ptp.precio, f.precio) * (u.comision_porcentaje / 100), 2)
-                ${whereClause}
+                ${outerFilter}
             `, params);
             return { updated: (result as any).affectedRows ?? 0 };
         } finally {

@@ -1,6 +1,5 @@
 import { Router } from "express";
 import authMiddleware from "../../../../Core/Middleware/authMiddleware.js";
-import requireRole, { Roles } from "../../../../Core/Middleware/roleMiddleware.js";
 import type { MetricsController } from "../metricsController.js";
 
 export function createMetricsRoutes(metricsController: MetricsController): Router {
@@ -14,8 +13,8 @@ export function createMetricsRoutes(metricsController: MetricsController): Route
     router.get("/event/:eventId/rps", (req, res) => metricsController.getEventRpMetrics(req, res));
     router.get("/event/:eventId/phases", (req, res) => metricsController.getEventPhaseMetrics(req, res));
 
-    router.post("/sync-prices", requireRole(Roles.ADMIN), (req, res) => metricsController.syncTicketPrices(req, res));
-    router.post("/sync-prices/:eventoId", requireRole(Roles.ADMIN), (req, res) => metricsController.syncTicketPrices(req, res));
+    router.post("/sync-prices", (req, res) => metricsController.syncTicketPrices(req, res));
+    router.post("/sync-prices/:eventoId", (req, res) => metricsController.syncTicketPrices(req, res));
 
     return router;
 }

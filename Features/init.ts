@@ -212,5 +212,9 @@ export function initFeatures(app: Application): void {
     app.use("/metrics", metricsRoutes);
     app.use("/events", ticketTypesRoutes);
 
+    metricsService.syncAllTicketPrices()
+        .then((r) => console.log(`[startup] synced ${r.updated} ticket prices`))
+        .catch((err) => console.error("[startup] price sync failed:", err));
+
     console.log("Features initialized");
 }
