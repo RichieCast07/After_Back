@@ -18,6 +18,7 @@ export function createClientsRoutes(clientController: ClientController): Router 
     router.use(requireRole(Roles.ADMIN));
     router.get("/", (req, res) => clientController.getClients(req, res));
     router.get("/export/csv", (req, res) => clientController.downloadClientsCsv(req, res));
+    router.patch("/:id", (req, res) => clientController.updateClient(req, res));
     router.delete("/:id", (req, res) => clientController.deleteClient(req, res));
 
     return router;

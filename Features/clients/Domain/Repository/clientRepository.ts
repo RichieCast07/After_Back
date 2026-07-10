@@ -12,5 +12,7 @@ export abstract class ClientRepository {
 
     abstract createClient(client: CreateClientDTO): Promise<Client>;
 
+    abstract updateClient(clientId: number, data: { nombre_completo?: string; telefono?: string }): Promise<Client>;
+
     abstract deleteClient(clientId: number): Promise<void>;
 }

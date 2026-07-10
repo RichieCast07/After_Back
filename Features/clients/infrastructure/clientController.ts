@@ -122,6 +122,21 @@ export class ClientController {
         }
     }
 
+    async updateClient(req: Request, res: Response): Promise<void> {
+        try {
+            const id = Number(req.params.id);
+            if (isNaN(id)) {
+                res.status(400).json({ success: false, error: "Invalid ID" });
+                return;
+            }
+            const { nombre_completo, telefono } = req.body as { nombre_completo?: string; telefono?: string };
+            const updated = await this.clientRepository.updateClient(id, { nombre_completo, telefono });
+            res.json(updated);
+        } catch (error: any) {
+            res.status(404).json({ success: false, error: error.message });
+        }
+    }
+
     async deleteClient(req: Request, res: Response): Promise<void> {
         try {
             const id = Number(req.params.id);

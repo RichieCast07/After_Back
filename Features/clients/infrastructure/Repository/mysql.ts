@@ -83,6 +83,49 @@ export class MySQLClientRepository extends ClientRepository {
         }
     }
 
+    async updateClient(clientId: number, data: { nombre_completo?: string; telefono?: string }): Promise<Client> {
+        const connection = await db.pool.getConnection();
+        try {
+            const existing = await this.getClientById(clientId);
+            if (!existing) throw new Error("Client not found");
+
+            const updates: string[] = [];
+            const values: any[] = [];
+
+            if (data.nombre_completo !== undefined) {
+                updates.push("nombre_completo = ?");
+                values.push(data.nombre_completo);
+            }
+            if (data.telefono !== undefined) {
+                updates.push("telefono = ?");
+                values.push(data.telefono);
+            }
+
+            if (updates.length > 0) {
+                values.push(clientId);
+                await connection.query(
+                    `UPDATE clientes SET ${updates.join(", ")} WHERE id = ?`,
+                    values
+                );
+
+                if (data.nombre_completo !== undefined) {
+                    await connection.query(
+                        `UPDATE boletos
+                         SET qr_payload = JSON_SET(qr_payload, '$.nombre', ?)
+                         WHERE cliente_id = ?`,
+                        [data.nombre_completo, clientId]
+                    );
+                }
+            }
+
+            const updated = await this.getClientById(clientId);
+            if (!updated) throw new Error("Failed to retrieve updated client");
+            return updated;
+        } finally {
+            connection.release();
+        }
+    }
+
     async deleteClient(clientId: number): Promise<void> {
         const connection = await db.pool.getConnection();
         try {
