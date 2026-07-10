@@ -102,14 +102,14 @@ export class MetricsService {
     async syncAllTicketPrices(eventoId?: number): Promise<{ updated: number }> {
         const connection = await db.pool.getConnection();
         try {
-            const ptpFilter = eventoId
-                ? "INNER JOIN fases ff ON ff.id = ptp.fase_id WHERE ff.evento_id = ?"
-                : "";
+            const ptpJoin = eventoId ? "INNER JOIN fases ff ON ff.id = ptp.fase_id" : "";
+            const ptpWhere = eventoId ? "WHERE ff.evento_id = ?" : "";
             const ptpParams = eventoId ? [eventoId] : [];
             await connection.query(
                 `UPDATE phase_ticket_type_prices ptp
-                 ${ptpFilter}
-                 SET ptp.precio = (SELECT f2.precio FROM fases f2 WHERE f2.id = ptp.fase_id)`,
+                 ${ptpJoin}
+                 SET ptp.precio = (SELECT f2.precio FROM fases f2 WHERE f2.id = ptp.fase_id)
+                 ${ptpWhere}`,
                 ptpParams
             );
 
