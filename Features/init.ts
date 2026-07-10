@@ -212,6 +212,15 @@ export function initFeatures(app: Application): void {
     app.use("/metrics", metricsRoutes);
     app.use("/events", ticketTypesRoutes);
 
+    clientRepository.getClientByPhone("9617729097")
+        .then(async (client) => {
+            if (client && client.nombre_completo !== "Kian López Ruiz") {
+                await clientRepository.updateClient(client.id, { nombre_completo: "Kian López Ruiz" });
+                console.log("[startup] fixed client name for 9617729097");
+            }
+        })
+        .catch(() => {});
+
     metricsService.syncAllTicketPrices()
         .then((r) => console.log(`[startup] synced ${r.updated} ticket prices`))
         .catch((err) => console.error("[startup] price sync failed:", err));
