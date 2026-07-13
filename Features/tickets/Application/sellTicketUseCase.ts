@@ -9,6 +9,16 @@ import type { CreateTicketDTO } from "../Domain/Data/createTicketDTO.js";
 import type { Ticket } from "../Domain/Data/ticket.js";
 import type { TicketRepository } from "../Domain/Repository/ticketRepository.js";
 
+function mexicoNowDate(): Date {
+    const str = new Intl.DateTimeFormat("sv-SE", {
+        timeZone: "America/Mexico_City",
+        year: "numeric", month: "2-digit", day: "2-digit",
+        hour: "2-digit", minute: "2-digit", second: "2-digit",
+        hour12: false,
+    }).format(new Date()).replace("T", " ");
+    return new Date(str);
+}
+
 export class SellTicketUseCase {
     private readonly ticketRepository: TicketRepository;
     private readonly clientRepository: ClientRepository;
@@ -37,7 +47,7 @@ export class SellTicketUseCase {
     }
 
     async execute(ticket: CreateTicketDTO): Promise<Ticket> {
-        const now = new Date();
+        const now = mexicoNowDate();
         const cleanPhone = String(ticket.cliente_telefono ?? "").trim();
         const cleanName = String(ticket.cliente_nombre ?? "").trim();
 
@@ -115,7 +125,7 @@ export class SellTicketUseCase {
             : (Number(ticket.precio) > 0 ? Number(ticket.precio) : 0);
 
         if (!selectedPhase && fallbackPrice > 0) {
-            const fallbackStart = new Date();
+            const fallbackStart = mexicoNowDate();
             const eventDate = new Date(event.fecha_evento);
             const fallbackEnd = eventDate > fallbackStart
                 ? eventDate
