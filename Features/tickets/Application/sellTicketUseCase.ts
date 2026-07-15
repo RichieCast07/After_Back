@@ -147,7 +147,7 @@ export class SellTicketUseCase {
             throw error;
         }
 
-        const isCortesia = Number(rpUser.es_cortesia) === 1;
+        const isCortesia = rpUser.username === "cortesia";
         const tipoBoleto = String(ticket.tipo_boleto ?? "GENERAL").trim().toUpperCase() || "GENERAL";
         const ticketTypePrice = await this.ticketTypeRepository.getPriceForPhaseAndType(ticket.evento_id, selectedPhase.id, tipoBoleto);
         const price = Number(ticketTypePrice ?? selectedPhase.precio);
@@ -177,7 +177,6 @@ export class SellTicketUseCase {
             precio: price,
             comision_rp: commission,
             qr_payload: qrPayload,
-            es_cortesia: isCortesia ? 1 : 0,
         });
 
         this.whatsappService?.sendTicketQr({

@@ -32,10 +32,6 @@ process.on('uncaughtException', (err) => {
         }
         console.log('Conexion a la base de datos Lista');
 
-        await db.pool.query("ALTER TABLE boletos ADD COLUMN IF NOT EXISTS es_cortesia TINYINT(1) NOT NULL DEFAULT 0").catch(() => {});
-        await db.pool.query("ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS es_cortesia TINYINT(1) NOT NULL DEFAULT 0").catch(() => {});
-        console.log('[startup] cortesia columns ready');
-
         init_users(app);
         initFeatures(app);
 
