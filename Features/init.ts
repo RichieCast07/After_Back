@@ -221,6 +221,15 @@ export function initFeatures(app: Application): void {
         })
         .catch(() => {});
 
+    clientRepository.getClientByPhone("9612515941")
+        .then(async (client) => {
+            if (client && client.nombre_completo !== "Gabriel Ávila") {
+                await clientRepository.updateClient(client.id, { nombre_completo: "Gabriel Ávila" });
+                console.log("[startup] fixed client name for 9612515941");
+            }
+        })
+        .catch(() => {});
+
     metricsService.syncAllTicketPrices()
         .then((r) => console.log(`[startup] synced ${r.updated} ticket prices`))
         .catch((err) => console.error("[startup] price sync failed:", err));
