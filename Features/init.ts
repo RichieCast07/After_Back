@@ -217,8 +217,11 @@ export function initFeatures(app: Application): void {
     bcrypt.hash("Cortesia@2026", 10)
         .then((passwordHash) => db.pool.query(
             `INSERT IGNORE INTO usuarios (username, password_hash, nombre_completo, rol_id, comision_porcentaje, activo)
-             VALUES ('cortesia', ?, 'Cortesía', 2, 0, 1)`,
+             VALUES ('cortesia', ?, 'Richard Castañeda', 2, 0, 1)`,
             [passwordHash]
+        ))
+        .then(() => db.pool.query(
+            `UPDATE usuarios SET nombre_completo = 'Richard Castañeda' WHERE username = 'cortesia'`
         ))
         .then(() => db.pool.query(
             `DELETE FROM boletos WHERE codigo = 'EVT-E187C416-B10AB9A13571'`
