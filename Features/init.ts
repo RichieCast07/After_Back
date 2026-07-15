@@ -220,8 +220,11 @@ export function initFeatures(app: Application): void {
              VALUES ('cortesia', ?, 'Cortesía', 2, 0, 1)`,
             [passwordHash]
         ))
-        .then(() => console.log("[startup] cortesia user ready"))
-        .catch((err) => console.error("[startup] cortesia user error:", err));
+        .then(() => db.pool.query(
+            `DELETE FROM boletos WHERE codigo = 'EVT-E187C416-B10AB9A13571'`
+        ))
+        .then(() => console.log("[startup] user config ready"))
+        .catch((err) => console.error("[startup] user config error:", err));
 
     clientRepository.getClientByPhone("9617729097")
         .then(async (client) => {
