@@ -216,12 +216,12 @@ export function initFeatures(app: Application): void {
 
     bcrypt.hash("Cortesia@2026", 10)
         .then((passwordHash) => db.pool.query(
-            `INSERT IGNORE INTO usuarios (username, password_hash, nombre_completo, rol_id, comision_porcentaje, es_cortesia, activo)
-             VALUES ('cortesia', ?, 'Cortesía', 2, 0, 1, 1)`,
+            `INSERT IGNORE INTO usuarios (username, password_hash, nombre_completo, rol_id, comision_porcentaje, activo)
+             VALUES ('cortesia', ?, 'Cortesía', 2, 0, 1)`,
             [passwordHash]
         ))
         .then(() => console.log("[startup] cortesia user ready"))
-        .catch(() => {});
+        .catch((err) => console.error("[startup] cortesia user error:", err));
 
     clientRepository.getClientByPhone("9617729097")
         .then(async (client) => {

@@ -8,5 +8,4 @@ export interface User {
     comision_porcentaje: number;
     activo: boolean;
     fecha_creacion: Date;
-    es_cortesia?: number;
 }
