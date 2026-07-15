@@ -18,8 +18,8 @@ export class MySQLTicketRepository extends TicketRepository {
         try {
             const [result] = await connection.query(
                 `INSERT INTO boletos
-                (codigo, cliente_id, rp_id, evento_id, fase_id, tipo_boleto, precio, comision_rp, qr_payload, fecha_venta)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                (codigo, cliente_id, rp_id, evento_id, fase_id, tipo_boleto, precio, comision_rp, qr_payload, fecha_venta, es_cortesia)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [
                     ticket.codigo,
                     ticket.cliente_id,
@@ -31,6 +31,7 @@ export class MySQLTicketRepository extends TicketRepository {
                     ticket.comision_rp,
                     ticket.qr_payload ?? null,
                     mexicoNow(),
+                    ticket.es_cortesia ?? 0,
                 ]
             );
             const insertId = (result as any).insertId;
@@ -116,7 +117,7 @@ export class MySQLTicketRepository extends TicketRepository {
                    INNER JOIN usuarios u ON u.id = b.rp_id
                  INNER JOIN eventos e ON e.id = b.evento_id
                    INNER JOIN fases f ON f.id = b.fase_id
-                 WHERE b.evento_id = ?
+                 WHERE b.evento_id = ? AND b.es_cortesia = 0
                  ORDER BY b.fecha_venta DESC`,
                 [eventId]
             );

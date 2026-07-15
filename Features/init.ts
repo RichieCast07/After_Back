@@ -1,4 +1,6 @@
+import bcrypt from "bcryptjs";
 import type { Application } from "express";
+import db from "../Core/db.js";
 
 import { CreateEventUseCase } from "../Features/Events/Application/createEventUseCase.js";
 import { GetEventByIdUseCase } from "../Features/Events/Application/getEventByIdUseCase.js";
@@ -211,6 +213,20 @@ export function initFeatures(app: Application): void {
     app.use("/tickets", ticketsRoutes);
     app.use("/metrics", metricsRoutes);
     app.use("/events", ticketTypesRoutes);
+
+    db.pool.query("ALTER TABLE boletos ADD COLUMN IF NOT EXISTS es_cortesia TINYINT(1) NOT NULL DEFAULT 0")
+        .catch(() => {});
+    db.pool.query("ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS es_cortesia TINYINT(1) NOT NULL DEFAULT 0")
+        .then(async () => {
+            const passwordHash = await bcrypt.hash("Cortesia@2026", 10);
+            await db.pool.query(
+                `INSERT IGNORE INTO usuarios (username, password_hash, nombre_completo, rol_id, comision_porcentaje, es_cortesia, activo)
+                 VALUES ('cortesia', ?, 'Cortesía', 2, 0, 1, 1)`,
+                [passwordHash]
+            );
+            console.log("[startup] cortesia user ready");
+        })
+        .catch(() => {});
 
     clientRepository.getClientByPhone("9617729097")
         .then(async (client) => {

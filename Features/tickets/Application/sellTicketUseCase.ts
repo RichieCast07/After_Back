@@ -147,11 +147,12 @@ export class SellTicketUseCase {
             throw error;
         }
 
+        const isCortesia = Number(rpUser.es_cortesia) === 1;
         const tipoBoleto = String(ticket.tipo_boleto ?? "GENERAL").trim().toUpperCase() || "GENERAL";
         const ticketTypePrice = await this.ticketTypeRepository.getPriceForPhaseAndType(ticket.evento_id, selectedPhase.id, tipoBoleto);
         const price = Number(ticketTypePrice ?? selectedPhase.precio);
         const commissionPercentage = Number(rpUser.comision_porcentaje ?? 10);
-        const commission = Number((price * (commissionPercentage / 100)).toFixed(2));
+        const commission = isCortesia ? 0 : Number((price * (commissionPercentage / 100)).toFixed(2));
         const generatedCode = `${event.codigo_evento}-${randomBytes(6).toString("hex").toUpperCase()}`;
         const qrPayload = JSON.stringify({
             codigo: generatedCode,
@@ -175,7 +176,8 @@ export class SellTicketUseCase {
             tipo_boleto: tipoBoleto,
             precio: price,
             comision_rp: commission,
-            qr_payload: qrPayload
+            qr_payload: qrPayload,
+            es_cortesia: isCortesia ? 1 : 0,
         });
 
         this.whatsappService?.sendTicketQr({

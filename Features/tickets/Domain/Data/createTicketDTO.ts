@@ -10,4 +10,5 @@ export interface CreateTicketDTO {
     precio?: number;
     comision_rp?: number;
     qr_payload?: string;
+    es_cortesia?: number;
 }

@@ -6,13 +6,13 @@ export class MetricsService {
         const connection = await db.pool.getConnection();
         try {
             const [rows] = await connection.query(
-                `SELECT 
+                `SELECT
                     COUNT(*) as total_boletos_vendidos,
                     SUM(precio) as total_ingresos,
                     SUM(comision_rp) as total_comisiones_rp,
                     SUM(CASE WHEN estado = 'ACTIVO' THEN 1 ELSE 0 END) as boletos_activos,
                     SUM(CASE WHEN estado = 'USADO' THEN 1 ELSE 0 END) as boletos_usados
-                 FROM boletos`
+                 FROM boletos WHERE es_cortesia = 0`
             );
             const result = rows as any[];
             return {
@@ -38,7 +38,7 @@ export class MetricsService {
                     SUM(b.precio) as ingresos_totales,
                     SUM(b.comision_rp) as comisiones_totales
                  FROM usuarios u
-                 LEFT JOIN boletos b ON u.id = b.rp_id
+                 LEFT JOIN boletos b ON u.id = b.rp_id AND b.es_cortesia = 0
                  WHERE u.rol_id = 2
                  GROUP BY u.id, u.username
                  ORDER BY boletos_vendidos DESC
@@ -63,7 +63,7 @@ export class MetricsService {
                     COALESCE(SUM(CASE WHEN b.estado = 'ACTIVO' THEN 1 ELSE 0 END), 0) as boletos_activos,
                     COALESCE(SUM(CASE WHEN b.estado = 'USADO' THEN 1 ELSE 0 END), 0) as boletos_usados
                  FROM eventos e
-                 LEFT JOIN boletos b ON e.id = b.evento_id
+                 LEFT JOIN boletos b ON e.id = b.evento_id AND b.es_cortesia = 0
                  WHERE e.id = ?
                  GROUP BY e.id, e.nombre`,
                 [eventId]
@@ -87,7 +87,7 @@ export class MetricsService {
                     COUNT(b.id) as boletos_vendidos,
                     SUM(b.precio) as ingresos_totales
                  FROM fases f
-                 LEFT JOIN boletos b ON f.id = b.fase_id
+                 LEFT JOIN boletos b ON f.id = b.fase_id AND b.es_cortesia = 0
                  WHERE f.evento_id = ?
                  GROUP BY f.id, f.nombre, f.precio
                  ORDER BY f.fecha_inicio ASC`,
@@ -170,7 +170,7 @@ export class MetricsService {
                     COALESCE(SUM(b.precio), 0) as ingresos_totales,
                     COALESCE(SUM(b.comision_rp), 0) as comisiones_totales
                  FROM usuarios u
-                 LEFT JOIN boletos b ON u.id = b.rp_id AND b.evento_id = ?
+                 LEFT JOIN boletos b ON u.id = b.rp_id AND b.evento_id = ? AND b.es_cortesia = 0
                  WHERE u.rol_id = 2
                  GROUP BY u.id, u.username
                  ORDER BY boletos_vendidos DESC, ingresos_totales DESC`,
