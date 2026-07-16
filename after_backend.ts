@@ -31,7 +31,7 @@ process.on('uncaughtException', (err) => {
             process.exit(1); 
         }
         console.log('Conexion a la base de datos Lista');
-        
+
         init_users(app);
         initFeatures(app);
 

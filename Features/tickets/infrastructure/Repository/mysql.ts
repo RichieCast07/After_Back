@@ -116,7 +116,7 @@ export class MySQLTicketRepository extends TicketRepository {
                    INNER JOIN usuarios u ON u.id = b.rp_id
                  INNER JOIN eventos e ON e.id = b.evento_id
                    INNER JOIN fases f ON f.id = b.fase_id
-                 WHERE b.evento_id = ?
+                 WHERE b.evento_id = ? AND b.rp_id != COALESCE((SELECT id FROM usuarios WHERE username = 'cortesia' LIMIT 1), 0)
                  ORDER BY b.fecha_venta DESC`,
                 [eventId]
             );
