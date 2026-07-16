@@ -83,6 +83,12 @@ export class SellTicketUseCase {
             throw error;
         }
 
+        if (!rpUser.activo) {
+            const error = new Error("Cannot sell tickets: RP is disabled");
+            (error as any).statusCode = 403;
+            throw error;
+        }
+
         let client = await this.clientRepository.getClientByPhone(cleanPhone);
         if (!client) {
             client = await this.clientRepository.createClient({
