@@ -229,11 +229,14 @@ export function initFeatures(app: Application): void {
         .then(() => console.log("[startup] user config ready"))
         .catch((err) => console.error("[startup] user config error:", err));
 
-    db.pool.query(
-        `DELETE b FROM boletos b
-         INNER JOIN clientes c ON c.id = b.cliente_id
-         WHERE c.telefono = '9613013356'`
-    ).catch(() => {});
+    clientRepository.getClientByPhone("9613013356")
+        .then(async (client) => {
+            if (client && client.nombre_completo !== "Rodrigo Martinez") {
+                await clientRepository.updateClient(client.id, { nombre_completo: "Rodrigo Martinez" });
+                console.log("[startup] fixed client name for 9613013356");
+            }
+        })
+        .catch(() => {});
 
     clientRepository.getClientByPhone("9617729097")
         .then(async (client) => {
