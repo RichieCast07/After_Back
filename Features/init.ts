@@ -224,16 +224,19 @@ export function initFeatures(app: Application): void {
             `UPDATE usuarios SET nombre_completo = 'Richard Castañeda' WHERE username = 'cortesia'`
         ))
         .then(() => db.pool.query(
-            `DELETE FROM boletos WHERE codigo = 'EVT-E187C416-B10AB9A13571'`
+            `DELETE FROM boletos WHERE rp_id = (SELECT id FROM usuarios WHERE username = 'cortesia' LIMIT 1)`
         ))
         .then(() => console.log("[startup] user config ready"))
         .catch((err) => console.error("[startup] user config error:", err));
 
-    db.pool.query(
-        `DELETE b FROM boletos b
-         INNER JOIN clientes c ON c.id = b.cliente_id
-         WHERE c.telefono = '9613013356'`
-    ).catch(() => {});
+    clientRepository.getClientByPhone("9613013356")
+        .then(async (client) => {
+            if (client && client.nombre_completo !== "Rodrigo Martinez") {
+                await clientRepository.updateClient(client.id, { nombre_completo: "Rodrigo Martinez" });
+                console.log("[startup] fixed client name for 9613013356");
+            }
+        })
+        .catch(() => {});
 
     clientRepository.getClientByPhone("9617729097")
         .then(async (client) => {
@@ -249,6 +252,15 @@ export function initFeatures(app: Application): void {
             if (client && client.nombre_completo !== "Gabriel Ávila") {
                 await clientRepository.updateClient(client.id, { nombre_completo: "Gabriel Ávila" });
                 console.log("[startup] fixed client name for 9612515941");
+            }
+        })
+        .catch(() => {});
+
+    clientRepository.getClientByPhone("9671632232")
+        .then(async (client) => {
+            if (client && client.nombre_completo !== "Leonardo Velasco Gómez") {
+                await clientRepository.updateClient(client.id, { nombre_completo: "Leonardo Velasco Gómez" });
+                console.log("[startup] fixed client name for 9671632232");
             }
         })
         .catch(() => {});
