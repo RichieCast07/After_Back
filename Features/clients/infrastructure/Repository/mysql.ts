@@ -3,12 +3,18 @@ import type { Client } from "../../Domain/Data/client.js";
 import type { CreateClientDTO } from "../../Domain/Data/createClientDTO.js";
 import { ClientRepository } from "../../Domain/Repository/clientRepository.js";
 
+const EXCLUDE_CORTESIA = `b.rp_id != COALESCE((SELECT id FROM usuarios WHERE username = 'cortesia' LIMIT 1), 0)`;
+
 export class MySQLClientRepository extends ClientRepository {
     async getClients(): Promise<Client[]> {
         const connection = await db.pool.getConnection();
         try {
             const [rows] = await connection.query(
-                "SELECT id, nombre_completo, telefono, fecha_registro FROM clientes"
+                `SELECT c.id, c.nombre_completo, c.telefono, c.fecha_registro
+                 FROM clientes c
+                 WHERE EXISTS (
+                     SELECT 1 FROM boletos b WHERE b.cliente_id = c.id AND ${EXCLUDE_CORTESIA}
+                 )`
             );
             return rows as Client[];
         } finally {
@@ -28,7 +34,7 @@ export class MySQLClientRepository extends ClientRepository {
                         b.precio AS precio_compra,
                         b.fecha_venta
                  FROM clientes c
-                 LEFT JOIN boletos b ON b.cliente_id = c.id
+                 INNER JOIN boletos b ON b.cliente_id = c.id AND ${EXCLUDE_CORTESIA}
                  LEFT JOIN usuarios u ON u.id = b.rp_id
                  LEFT JOIN eventos e ON e.id = b.evento_id
                  ORDER BY c.id ASC, b.fecha_venta DESC`
