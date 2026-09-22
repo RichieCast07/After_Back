@@ -29,6 +29,8 @@ export interface EventMetrics {
 export interface PhaseMetrics {
     fase_id: number;
     nombre: string;
+    tipo_id: number;
+    tipo_nombre: string;
     precio: number;
     boletos_vendidos: number;
     ingresos_totales: number;

@@ -85,14 +85,18 @@ export class MetricsService {
                 `SELECT
                     f.id as fase_id,
                     f.nombre,
-                    f.precio,
+                    tt.id as tipo_id,
+                    tt.nombre as tipo_nombre,
+                    ptp.precio as precio,
                     COUNT(b.id) as boletos_vendidos,
-                    SUM(b.precio) as ingresos_totales
+                    COALESCE(SUM(b.precio), 0) as ingresos_totales
                  FROM fases f
-                 LEFT JOIN boletos b ON f.id = b.fase_id AND ${EXCLUDE_CORTESIA}
+                 INNER JOIN phase_ticket_type_prices ptp ON ptp.fase_id = f.id
+                 INNER JOIN ticket_types tt ON tt.id = ptp.ticket_type_id AND tt.activo = 1
+                 LEFT JOIN boletos b ON b.fase_id = f.id AND b.tipo_boleto = tt.nombre AND ${EXCLUDE_CORTESIA}
                  WHERE f.evento_id = ?
-                 GROUP BY f.id, f.nombre, f.precio
-                 ORDER BY f.fecha_inicio ASC`,
+                 GROUP BY f.id, f.nombre, tt.id, tt.nombre, ptp.precio
+                 ORDER BY f.fecha_inicio ASC, tt.nombre ASC`,
                 [eventId]
             );
             return rows as PhaseMetrics[];
