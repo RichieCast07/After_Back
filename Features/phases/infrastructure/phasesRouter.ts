@@ -11,10 +11,9 @@ export function registerPhasesRoutes(app: Application, phaseController: PhaseCon
 
     phaseRouter.get("/:eventId/phases", (req, res) => phaseController.getPhasesByEventId(req, res));
 
-    phaseRouter.use(requireRole(Roles.ADMIN));
-    phaseRouter.post("/:eventId/phases", (req, res) => phaseController.createPhase(req, res));
-    phaseRouter.put("/:eventId/phases/:phaseId", (req, res) => phaseController.updatePhase(req, res));
-    phaseRouter.patch("/:eventId/phases/:phaseId/toggle", (req, res) => phaseController.togglePhaseStatus(req, res));
+    phaseRouter.post("/:eventId/phases", requireRole(Roles.ADMIN), (req, res) => phaseController.createPhase(req, res));
+    phaseRouter.put("/:eventId/phases/:phaseId", requireRole(Roles.ADMIN), (req, res) => phaseController.updatePhase(req, res));
+    phaseRouter.patch("/:eventId/phases/:phaseId/toggle", requireRole(Roles.ADMIN), (req, res) => phaseController.togglePhaseStatus(req, res));
 
     app.use("/events", phaseRouter);
 }

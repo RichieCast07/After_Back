@@ -11,11 +11,10 @@ export function createEventsRoutes(eventController: EventController): Router {
     router.get("/", (req, res) => eventController.getEvents(req, res));
     router.get("/:id", (req, res) => eventController.getEventById(req, res));
 
-    router.use(requireRole(Roles.ADMIN));
-    router.post("/", (req, res) => eventController.createEvent(req, res));
-    router.delete("/:id", (req, res) => eventController.deleteEvent(req, res));
-    router.put("/:id", (req, res) => eventController.updateEvent(req, res));
-    router.patch("/:id/toggle", (req, res) => eventController.toggleEventStatus(req, res));
+    router.post("/", requireRole(Roles.ADMIN), (req, res) => eventController.createEvent(req, res));
+    router.delete("/:id", requireRole(Roles.ADMIN), (req, res) => eventController.deleteEvent(req, res));
+    router.put("/:id", requireRole(Roles.ADMIN), (req, res) => eventController.updateEvent(req, res));
+    router.patch("/:id/toggle", requireRole(Roles.ADMIN), (req, res) => eventController.toggleEventStatus(req, res));
 
     return router;
 }
