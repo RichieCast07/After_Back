@@ -1,7 +1,7 @@
 import db from "../../../Core/db.js";
 import type { EventMetrics, EventRpMetrics, OverallMetrics, PhaseMetrics, RpMetrics } from "../Domain/Data/metrics.js";
 
-const EXCLUDE_CORTESIA = `b.rp_id != COALESCE((SELECT id FROM usuarios WHERE username = 'cortesia' LIMIT 1), 0)`;
+const EXCLUDE_CORTESIA = `b.rp_id != COALESCE((SELECT id FROM usuarios WHERE username = 'guest' LIMIT 1), 0)`;
 
 export class MetricsService {
     async getOverallMetrics(): Promise<OverallMetrics> {

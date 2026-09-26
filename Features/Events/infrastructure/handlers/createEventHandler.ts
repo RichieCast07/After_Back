@@ -22,7 +22,7 @@ export class CreateEventHandler {
                 missingFields.push("fecha_evento");
             }
 
-            if (precio_inicial === undefined || precio_inicial === null || precio_inicial === "") {
+            if (precio_inicial === undefined || precio_inicial === null || (precio_inicial as unknown) === "") {
                 missingFields.push("precio_inicial");
             }
 
@@ -44,7 +44,7 @@ export class CreateEventHandler {
                 nombre,
                 fecha_evento: new Date(fecha_evento),
                 lugar,
-                maps_url,
+                ...(maps_url !== undefined ? { maps_url } : {}),
                 precio_inicial: Number(precio_inicial)
             });
 

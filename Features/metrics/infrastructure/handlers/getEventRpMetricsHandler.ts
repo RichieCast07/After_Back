@@ -10,7 +10,7 @@ export class GetEventRpMetricsHandler {
 
     async handle(req: Request, res: Response): Promise<void> {
         try {
-            const eventId = parseInt(req.params.eventId, 10);
+            const eventId = parseInt(String(req.params.eventId ?? ""), 10);
             if (isNaN(eventId)) {
                 res.status(400).json({ error: "Invalid event ID" });
                 return;

@@ -11,10 +11,10 @@ for (const key of requiredEnvVars) {
 }
 
 const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_SCHEMA,
+  host: process.env.DB_HOST as string,
+  user: process.env.DB_USER as string,
+  password: process.env.DB_PASS as string,
+  database: process.env.DB_SCHEMA as string,
   port: parseInt(process.env.DB_PORT || '3306', 10),
   waitForConnections: true,
   connectionLimit: parseInt(process.env.DB_CONN_LIMIT || '10', 10),

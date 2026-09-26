@@ -130,7 +130,10 @@ export class ClientController {
                 return;
             }
             const { nombre_completo, telefono } = req.body as { nombre_completo?: string; telefono?: string };
-            const updated = await this.clientRepository.updateClient(id, { nombre_completo, telefono });
+            const data: { nombre_completo?: string; telefono?: string } = {};
+            if (nombre_completo !== undefined) data.nombre_completo = nombre_completo;
+            if (telefono !== undefined) data.telefono = telefono;
+            const updated = await this.clientRepository.updateClient(id, data);
             res.json(updated);
         } catch (error: any) {
             res.status(404).json({ success: false, error: error.message });

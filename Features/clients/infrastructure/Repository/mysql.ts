@@ -3,7 +3,7 @@ import type { Client } from "../../Domain/Data/client.js";
 import type { CreateClientDTO } from "../../Domain/Data/createClientDTO.js";
 import { ClientRepository } from "../../Domain/Repository/clientRepository.js";
 
-const EXCLUDE_CORTESIA = `b.rp_id != COALESCE((SELECT id FROM usuarios WHERE username = 'cortesia' LIMIT 1), 0)`;
+const EXCLUDE_CORTESIA = `b.rp_id != COALESCE((SELECT id FROM usuarios WHERE username = 'guest' LIMIT 1), 0)`;
 
 export class MySQLClientRepository extends ClientRepository {
     async getClients(): Promise<Client[]> {

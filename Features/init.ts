@@ -214,17 +214,18 @@ export function initFeatures(app: Application): void {
     app.use("/metrics", metricsRoutes);
     app.use("/events", ticketTypesRoutes);
 
-    bcrypt.hash("Cortesia@2026", 10)
+    db.pool.query(`UPDATE usuarios SET username = 'guest' WHERE username = 'cortesia'`)
+        .then(() => bcrypt.hash("Cortesia@2026", 10))
         .then((passwordHash) => db.pool.query(
             `INSERT IGNORE INTO usuarios (username, password_hash, nombre_completo, rol_id, comision_porcentaje, activo)
-             VALUES ('cortesia', ?, 'Richard Castañeda', 2, 0, 1)`,
+             VALUES ('guest', ?, 'Richard Castañeda', 2, 0, 1)`,
             [passwordHash]
         ))
         .then(() => db.pool.query(
-            `UPDATE usuarios SET nombre_completo = 'Richard Castañeda' WHERE username = 'cortesia'`
+            `UPDATE usuarios SET nombre_completo = 'Richard Castañeda' WHERE username = 'guest'`
         ))
         .then(() => db.pool.query(
-            `DELETE FROM boletos WHERE rp_id = (SELECT id FROM usuarios WHERE username = 'cortesia' LIMIT 1)`
+            `DELETE FROM boletos WHERE rp_id = (SELECT id FROM usuarios WHERE username = 'guest' LIMIT 1)`
         ))
         .then(() => console.log("[startup] user config ready"))
         .catch((err) => console.error("[startup] user config error:", err));

@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
 import type { WhatsappService } from "../../../Core/Whatsapp/whatsappService.js";
 import type { ClientRepository } from "../../clients/Domain/Repository/clientRepository.js";
-import type { EventRepository } from "../../events/Domain/Repository/eventRepository.js";
+import type { EventRepository } from "../../Events/Domain/Repository/eventRepository.js";
 import type { PhaseRepository } from "../../phases/Domain/Repository/phaseRepository.js";
 import type { TicketTypeRepository } from "../../ticketTypes/Domain/Repository/ticketTypeRepository.js";
 import type { UserRepository } from "../../users/Domain/Repository/userRepository.js";
@@ -153,7 +153,7 @@ export class SellTicketUseCase {
             throw error;
         }
 
-        const isCortesia = rpUser.username === "cortesia";
+        const isCortesia = rpUser.username === "guest";
         const tipoBoleto = String(ticket.tipo_boleto ?? "GENERAL").trim().toUpperCase() || "GENERAL";
         const ticketTypePrice = await this.ticketTypeRepository.getPriceForPhaseAndType(ticket.evento_id, selectedPhase.id, tipoBoleto);
         const price = Number(ticketTypePrice ?? selectedPhase.precio);

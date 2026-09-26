@@ -11,7 +11,11 @@ export class GetTicketQrHandler {
 
     async handle(req: Request, res: Response): Promise<void> {
         try {
-            const { codigo } = req.params;
+            const codigo = req.params.codigo;
+            if (!codigo || Array.isArray(codigo)) {
+                res.status(400).json({ error: "Invalid ticket code" });
+                return;
+            }
             const ticket = await this.getTicketByCodeUseCase.execute(codigo);
 
             if (!ticket) {
