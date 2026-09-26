@@ -27,7 +27,7 @@ export class LoginUserUseCase {
         if (!secret) {
             throw HttpErrors.internalServerError('JWT_SECRET is not defined');
         }
-        const token = jwt.sign(payload, secret, { expiresIn: '1h' });
+        const token = jwt.sign(payload, secret, { expiresIn: '12h' });
         
         return { token, user };
     }
