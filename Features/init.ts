@@ -224,9 +224,6 @@ export function initFeatures(app: Application): void {
         .then(() => db.pool.query(
             `UPDATE usuarios SET nombre_completo = 'Richard Castañeda' WHERE username = 'guest'`
         ))
-        .then(() => db.pool.query(
-            `DELETE FROM boletos WHERE rp_id = (SELECT id FROM usuarios WHERE username = 'guest' LIMIT 1)`
-        ))
         .then(() => console.log("[startup] user config ready"))
         .catch((err) => console.error("[startup] user config error:", err));
 
