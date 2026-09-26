@@ -41,7 +41,7 @@ export class MetricsService {
                     SUM(b.comision_rp) as comisiones_totales
                  FROM usuarios u
                  LEFT JOIN boletos b ON u.id = b.rp_id AND ${EXCLUDE_CORTESIA}
-                 WHERE u.rol_id = 2
+                 WHERE u.rol_id = 2 AND u.username != 'guest'
                  GROUP BY u.id, u.username
                  ORDER BY boletos_vendidos DESC
                  LIMIT 10`
@@ -166,7 +166,7 @@ export class MetricsService {
                     COALESCE(SUM(b.comision_rp), 0) as comisiones_totales
                  FROM usuarios u
                  LEFT JOIN boletos b ON u.id = b.rp_id AND b.evento_id = ? AND ${EXCLUDE_CORTESIA}
-                 WHERE u.rol_id = 2
+                 WHERE u.rol_id = 2 AND u.username != 'guest'
                  GROUP BY u.id, u.username
                  ORDER BY boletos_vendidos DESC, ingresos_totales DESC`,
                 [eventId]
