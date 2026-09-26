@@ -10,6 +10,8 @@ export abstract class ClientRepository {
 
     abstract getClientByPhone(phone: string): Promise<Client | null>;
 
+    abstract getClientByPhoneForSearch(phone: string): Promise<Client | null>;
+
     abstract createClient(client: CreateClientDTO): Promise<Client>;
 
     abstract updateClient(clientId: number, data: { nombre_completo?: string; telefono?: string }): Promise<Client>;

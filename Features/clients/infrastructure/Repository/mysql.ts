@@ -73,6 +73,25 @@ export class MySQLClientRepository extends ClientRepository {
         }
     }
 
+    async getClientByPhoneForSearch(phone: string): Promise<Client | null> {
+        const connection = await db.pool.getConnection();
+        try {
+            const [rows] = await connection.query(
+                `SELECT c.id, c.nombre_completo, c.telefono, c.fecha_registro
+                 FROM clientes c
+                 WHERE c.telefono = ?
+                   AND EXISTS (
+                       SELECT 1 FROM boletos b WHERE b.cliente_id = c.id AND ${EXCLUDE_CORTESIA}
+                   )`,
+                [phone]
+            );
+            const clients = rows as Client[];
+            return clients.length > 0 ? (clients[0] as Client) : null;
+        } finally {
+            connection.release();
+        }
+    }
+
     async createClient(client: CreateClientDTO): Promise<Client> {
         const connection = await db.pool.getConnection();
         try {

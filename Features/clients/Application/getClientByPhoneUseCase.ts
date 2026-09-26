@@ -9,6 +9,6 @@ export class GetClientByPhoneUseCase {
     }
 
     async execute(phone: string): Promise<Client | null> {
-        return this.clientRepository.getClientByPhone(phone);
+        return this.clientRepository.getClientByPhoneForSearch(phone);
     }
 }
